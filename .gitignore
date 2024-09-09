@@ -167,3 +167,6 @@ state.txt
 
 test/terraform.tfstate*
 test/tftui.plan
+
+# nix places a symlink here
+/result
