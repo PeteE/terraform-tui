@@ -19,6 +19,7 @@
         # GPT Assist: This means “take the mkPoetryApplication attribute from the set produced by calling mkPoetry2Nix { inherit pkgs; } and make it available in the current scope.”
         inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication; 
         terraform-tui-app = mkPoetryApplication {
+            name = "tftui";
             projectDir = self;
         };
       in
