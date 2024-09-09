@@ -17,10 +17,26 @@
         # the packages and versions (python3, poetry etc.) from our pinned nixpkgs above:
 
         # GPT Assist: This means “take the mkPoetryApplication attribute from the set produced by calling mkPoetry2Nix { inherit pkgs; } and make it available in the current scope.”
-        inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication; 
+        inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication mkPoetryEnv;
+
+
+        # https://github.com/nix-community/poetry2nix/tree/master?tab=readme-ov-file#mkpoetryapplication
+        # Creates a Python application using the Python interpreter specified based
+        # on the designated poetry project and lock files
         terraform-tui-app = mkPoetryApplication {
             name = "tftui";
             projectDir = self;
+        };
+
+        # https://github.com/nix-community/poetry2nix/tree/master?tab=readme-ov-file#mkpoetryenv
+        # Creates an environment that provides a Python interpreter along with all dependencies
+        # declared by the designated poetry project and lock files. Also allows package sources
+        # of an application to be installed in editable mode for fast development.
+        terraform-tui-env = mkPoetryEnv {
+          projectDir = self;
+          editablePackageSources = {
+            tftui = ./tftui;
+          };
         };
       in
       {
@@ -34,8 +50,10 @@
         #
         # Use this shell for developing your app.
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ terraform-tui-app ];
-          packages = [ terraform-tui-app ];
+          inputsFrom = [ terraform-tui-env ];
+          packages = [
+            pkgs.poetry
+          ];
         };
 
         # Shell for poetry.
@@ -44,7 +62,9 @@
         #
         # Use this shell for changes to pyproject.toml and poetry.lock.
         devShells.poetry = pkgs.mkShell {
-          packages = [ pkgs.poetry ];
+          packages = [
+            pkgs.poetry
+          ];
         };
       });
 }
